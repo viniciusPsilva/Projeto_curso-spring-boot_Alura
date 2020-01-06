@@ -1,6 +1,9 @@
 package br.com.alura.forum.service;
 
+import br.com.alura.forum.Exception.InvalidTokenException;
 import br.com.alura.forum.model.Usuario;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,5 +35,23 @@ public class TokenServiceImpl implements TokenService {
                 .setExpiration(dataExpiracao) // momento em que o token ira expirar
                 .signWith(SignatureAlgorithm.HS256, secret) // algoritimo que gerara o token e senha
                 .compact();
+    }
+
+    @Override
+    public boolean isValid(String token){
+        try{
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .setSigningKey(this.secret)
+                    .parseClaimsJws(token);
+            return true;
+        }catch (Exception ex){
+            return false;
+        }
+    }
+
+    @Override
+    public Long getIdUsuario(String token) {
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return  Long.parseLong(claims.getSubject());
     }
 }

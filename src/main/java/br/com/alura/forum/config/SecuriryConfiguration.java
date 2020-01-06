@@ -1,6 +1,8 @@
 package br.com.alura.forum.config;
 
+import br.com.alura.forum.repository.UsuarioRepository;
 import br.com.alura.forum.service.AutenticacaoService;
+import br.com.alura.forum.service.TokenService;
 import br.com.alura.forum.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,10 +16,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
 public class SecuriryConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private TokenService tokenService;
+@Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private AutenticacaoService autenticacaoService;
@@ -45,7 +53,9 @@ public class SecuriryConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/auth").permitAll()
                 .anyRequest().authenticated()
                 .and().csrf().disable() // desabilita a tratativa contra csrf(não é necessário tratar pois estamos usando token para se autenticar// )
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //configura a sessão para se compirtar como Stateless(sem contrle de sessão no lado do servidor)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //configura a sessão para se compirtar como Stateless(sem contrle de sessão no lado do servidor)
+                .and().addFilterBefore(new AutenticacaoFilterConfiguration(tokenService, usuarioRepository), UsernamePasswordAuthenticationFilter.class); // registra o filtro responsavel por validar o token do usuário
+
 
     }
 

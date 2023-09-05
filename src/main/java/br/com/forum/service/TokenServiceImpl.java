@@ -28,7 +28,7 @@ public class TokenServiceImpl implements TokenService {
         Date dataExpiracao = new Date(dataAtual.getTime()+ Long.parseLong(expiration));
 
         return Jwts.builder()
-                .setIssuer("API do forum da Alura") // aplicação responsavel por gerar o token
+                .setIssuer("Forum API") // aplicação responsavel por gerar o token
                 .setSubject(usuarioLogado.getId().toString()) // informação referente ao usuário logado
                 .setIssuedAt(dataAtual) // momento em que o token foi gerado
                 .setExpiration(dataExpiracao) // momento em que o token ira expirar
